@@ -6,7 +6,7 @@ It does not require you to host a SQL server and everything is self-contained in
 a statically linked binary (the docker image runs on scratch !), which makes it
 extremely easy to deploy.
 
-Try it out on: https://basedbin.fly.dev
+ORIGINAL VERSION: https://github.com/wantguns
 
 ## Clients
 
@@ -31,7 +31,7 @@ You can paste
 Get the client from [this repository](contrib/cli/client) or from my deployed paste:
 
 ```bash
-curl -o pst https://bin.wantguns.dev/client
+curl -o pst https://$BASEURL/client
 chmod +x pst
 ```
 
@@ -41,7 +41,7 @@ or manually copy the following at a file in your path.
 #!/bin/bash
 
 # Change the url accordingly
-URL="https://basedbin.fly.dev"
+URL="https://${BASEURL}"
 
 FILEPATH="$1"
 FILENAME=$(basename -- "$FILEPATH")
@@ -194,7 +194,7 @@ BIN_IDENT=false
 `GET /p/<id>.<ext> `  
 
   Get syntax highlighted pastes.  
-  E.g. https://basedbin.fly.dev/p/foobaz.cpp should return a C++ syntax
+  E.g. https://<baseurl>/p/foobaz.cpp should return a C++ syntax
   highlighted paste
 
 `POST /`  
