@@ -18,20 +18,20 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1 
         with:
-          username: wantguns
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Building the ${{ matrix.arch }} image
         run: |
           docker build . \
-            -t wantguns/bin:${{ matrix.arch }} \
+            -t maokwen/bin:${{ matrix.arch }} \
             --build-arg ARCH=${{ matrix.arch }}
           mkdir -p artifacts/images
-          docker save wantguns/bin:${{ matrix.arch }} > artifacts/images/${{ matrix.arch }}.tar
+          docker save maokwen/bin:${{ matrix.arch }} > artifacts/images/${{ matrix.arch }}.tar
 
       - name: Pushing the ${{ matrix.arch }} image
         run: |
-          docker push wantguns/bin:${{ matrix.arch }}
+          docker push maokwen/bin:${{ matrix.arch }}
 
       - name: Temporarily saving the image
         uses: actions/upload-artifact@v2
@@ -48,7 +48,7 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1 
         with:
-          username: wantguns
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Retrieve saved images
@@ -66,13 +66,13 @@ jobs:
       - name: Creating a multi-arch manifest
         run: |
           docker manifest create \
-            wantguns/bin:latest \
-            --amend wantguns/bin:amd64 \
-            --amend wantguns/bin:arm64
+            maokwen/bin:latest \
+            --amend maokwen/bin:amd64 \
+            --amend maokwen/bin:arm64
           
-          docker manifest annotate wantguns/bin:latest \
-            wantguns/bin:arm64 --arch arm64
+          docker manifest annotate maokwen/bin:latest \
+            maokwen/bin:arm64 --arch arm64
 
       - name: Push the manifest
         run: |
-          docker manifest push wantguns/bin:latest
+          docker manifest push maokwen/bin:latest

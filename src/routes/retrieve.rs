@@ -9,16 +9,19 @@ use crate::models::response_wrapper::ResponseWrapper;
 
 #[get("/<id>", rank = 2)]
 pub async fn retrieve(id: PasteId<'_>) -> ResponseWrapper<File> {
-    retrieve_inner(&id.to_string()).await
+    retrieve_inner(&id.to_string(), None).await
 }
 
 // rank 1 here because this would be more oftenly used
 #[get("/<id_ext>", rank = 1)]
 pub async fn retrieve_ext(id_ext: PasteIdSyntax<'_>) -> ResponseWrapper<File> {
-    retrieve_inner(id_ext.get_fname()).await
+    retrieve_inner(id_ext.get_fname(), Some(id_ext.get_ext())).await
 }
 
-pub async fn retrieve_inner(id: &str) -> ResponseWrapper<File> {
+pub async fn retrieve_inner(
+    id: &str,
+    ext: Option<&str>,
+) -> ResponseWrapper<File> {
     let filepath = Path::new(&get_upload_dir()).join(id);
 
     let modified_date =
@@ -42,5 +45,15 @@ pub async fn retrieve_inner(id: &str) -> ResponseWrapper<File> {
         }
     };
 
-    ResponseWrapper::raw_paste_response(file, modified_date)
+    let mime = ext.and_then(|ext| mime_guess::from_ext(ext).first());
+
+    if let Some(mime) = mime {
+        ResponseWrapper::mime_paste_response(
+            file,
+            modified_date,
+            mime.essence_str().to_string(),
+        )
+    } else {
+        ResponseWrapper::raw_paste_response(file, modified_date)
+    }
 }

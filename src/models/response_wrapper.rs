@@ -10,6 +10,7 @@ pub enum ResponseWrapper<R> {
     MetaInterfaceResponse(R),
     PrettyPasteContentResponse(R, SystemTime),
     RawPasteContentResponse(R, SystemTime),
+    MimeContentResponse(R, SystemTime, String),
     Redirect(Box<Redirect>),
     NotFound(String),
     ServerError(String),
@@ -26,6 +27,14 @@ impl<'r, 'o: 'r, R: Responder<'r, 'o>> ResponseWrapper<R> {
 
     pub fn raw_paste_response(responder: R, modified: SystemTime) -> Self {
         Self::RawPasteContentResponse(responder, modified)
+    }
+
+    pub fn mime_paste_response(
+        responder: R,
+        modified: SystemTime,
+        content_type: String,
+    ) -> Self {
+        Self::MimeContentResponse(responder, modified, content_type)
     }
 
     pub fn redirect(redirect: Redirect) -> Self {
@@ -73,6 +82,13 @@ impl<'r, 'o: 'r, R: Responder<'r, 'o>> Responder<'r, 'o>
 
             RawPasteContentResponse(sup, modified) => response
                 .join(sup.respond_to(request)?)
+                .raw_header("Last-Modified", http_strftime(modified))
+                .raw_header("Cache-Control", "max-age=604800, immutable")
+                .ok(),
+
+            MimeContentResponse(sup, modified, content_type) => response
+                .join(sup.respond_to(request)?)
+                .raw_header("Content-Type", content_type)
                 .raw_header("Last-Modified", http_strftime(modified))
                 .raw_header("Cache-Control", "max-age=604800, immutable")
                 .ok(),

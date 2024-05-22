@@ -93,13 +93,13 @@ Currently, builds for the following target triples are shipped:
 The builds shipped are statically linked, so you don't even need a libc to run
 the binary !  
 The docker manifest labelled
-[`wantguns/bin:latest`](https://hub.docker.com/layers/wantguns/bin/latest/images/sha256-34c19b59d098bd1420fc48f6b1f01dc250d3d8787a3786f5425efb4e74cc17f2?context=repo)
+[`maokwen/bin:latest`](https://hub.docker.com/layers/maokwen/bin/latest/images/sha256-34c19b59d098bd1420fc48f6b1f01dc250d3d8787a3786f5425efb4e74cc17f2?context=repo)
 includes the images for both amd64 and arm64 images.
 
 ### Docker
 
 ```bash
-$ docker run -p 6162:6162 wantguns/bin
+$ docker run -p 6162:6162 maokwen/bin
 ```
 
 ### Docker Compose
@@ -108,7 +108,7 @@ $ docker run -p 6162:6162 wantguns/bin
 version: '3.3'
 services:
   pastebin:
-    image: wantguns/bin
+    image: maokwen/bin
     container_name: pastebin
     ports:
       - 127.0.0.1:6163:6163

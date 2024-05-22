@@ -3,7 +3,6 @@ use rocket_dyn_templates::Template;
 use std::fs;
 
 use std::collections::HashMap;
-use std::io::ErrorKind::{InvalidData, NotFound};
 use std::path::Path;
 
 use crate::get_upload_dir;
@@ -36,7 +35,7 @@ pub async fn pretty_retrieve_inner(
     let modified_date =
         match fs::metadata(&filepath).and_then(|m| m.modified()) {
             Ok(v) => v,
-            Err(e) if e.kind() == NotFound => {
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
                 return ResponseWrapper::not_found(id);
             }
             Err(e) => {
@@ -46,13 +45,12 @@ pub async fn pretty_retrieve_inner(
 
     let contents = match get_pretty_body(&filepath, ext) {
         Ok(v) => v,
-        Err(e) if e.kind() == InvalidData => {
+        Err(crate::models::pretty::Error::InvalidSyntax(_e)) => {
             return ResponseWrapper::redirect(Redirect::permanent(format!(
-                "/{}",
-                id
+                "/{id}"
             )));
         }
-        Err(e) if e.kind() == NotFound => {
+        Err(crate::models::pretty::Error::Io(_e)) => {
             return ResponseWrapper::not_found(id)
         }
         Err(e) => {
